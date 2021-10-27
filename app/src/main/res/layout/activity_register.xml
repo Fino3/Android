@@ -44,6 +44,9 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
         android:text="注   册"
-        android:textSize="20sp" />
+        android:textSize="18dp"
+        android:typeface="monospace"
+        android:background="@drawable/button_circle_shape"
+        />
 
 </RelativeLayout>

@@ -1,8 +1,9 @@
 package com.example.listview;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class Newsactivity extends AppCompatActivity {
+public class NewsFragment extends Fragment {
     private String[] titles={"福州大学签订生物医药领域重大专利转化项目","厦门工艺美术学院在中国大学生计算机设计大赛获两项全国二等奖",
             "机械学院科研成果在国际知名期刊以封面文章形式发表","福州大学5200余名新生开启军训之旅","福州大学第50届田径运动会组委会会议举行","福州大学获第44届ICPC全球总决赛(线上)第21名"};
     private String[] detailss={"福州大学与苏州维益生物科技有限公司签订了“基于硫醇交换递送系统的纳米药物”的技术（专利申请权）转让合同与技术开发（合作）合同，签约总金额达300万元。",
@@ -23,12 +24,12 @@ public class Newsactivity extends AppCompatActivity {
     private int []icons={R.drawable.a1,R.drawable.a2,R.drawable.a3,R.drawable.a4,R.drawable.a5,R.drawable.a6};
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.news);
-        ListView listview=findViewById(R.id.lv);
+    public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        View view = View.inflate(getActivity(),R.layout.news,null);
+        ListView listview=view.findViewById(R.id.lv);
         MyBaseAdapter adapter=new MyBaseAdapter();
         listview.setAdapter(adapter);
+        return view;
     }
     class MyBaseAdapter extends BaseAdapter{
 
@@ -49,7 +50,7 @@ public class Newsactivity extends AppCompatActivity {
 
         @Override
         public View getView(int i, View convertView, ViewGroup viewGroup) {
-            View view=View.inflate(Newsactivity.this,R.layout.list_item,null);
+            View view=View.inflate(getActivity(),R.layout.list_item,null);
             TextView title=view.findViewById(R.id.title);
             TextView details=view.findViewById(R.id.details);
             TextView date1=view.findViewById(R.id.date1);

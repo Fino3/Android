@@ -1,9 +1,12 @@
 package com.example.listview;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,7 +22,11 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View view) {
-        dispatchTakePictureIntent();
+        if (TakephotoActivity.checkCameraHardware(getApplicationContext())) {
+            dispatchTakePictureIntent();
+        } else {
+            Toast.makeText(getApplicationContext(),"设备不支持",Toast.LENGTH_LONG).show();
+        }
     }
 
     private void dispatchTakePictureIntent() {
@@ -28,5 +35,9 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
-
+    private static  boolean checkCameraHardware(Context context) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
+            return true;
+        return false;
+    }
 }

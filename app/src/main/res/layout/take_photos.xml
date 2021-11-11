@@ -34,9 +34,9 @@
         android:layout_below="@id/ett_sub"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="40dp"
-        android:background="@color/white"
+        android:background="@drawable/add"
         android:scaleType="fitCenter"
-        android:src="@drawable/add" />
+        />
 
     <RadioGroup
         android:id="@+id/rg_bg1"
@@ -52,7 +52,7 @@
             android:id="@+id/rb_safe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="20dp"
             android:text="安全隐患"
             />
 
@@ -60,7 +60,7 @@
             android:id="@+id/rb_clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="30dp"
             android:text="卫生问题"
             />
 
@@ -68,7 +68,7 @@
             android:id="@+id/rb_zhixu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="40dp"
             android:text="秩序问题"
             />
     </RadioGroup>

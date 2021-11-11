@@ -22,6 +22,7 @@
         </activity>
         <activity android:name=".Mainfaceactivity"/>
         <activity android:name=".registeractivity"/>
+        <activity android:name=".TakephotoActivity" />
     </application>
 
 </manifest>

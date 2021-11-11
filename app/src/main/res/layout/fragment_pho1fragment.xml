@@ -11,8 +11,7 @@
         android:layout_height="127dp"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="300dp"
-        android:background="@drawable/take_pictures"
-        />
+        android:background="@drawable/take_pictures" />
 
     <ImageButton
         android:id="@+id/btn_history"

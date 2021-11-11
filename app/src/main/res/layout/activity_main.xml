@@ -12,7 +12,7 @@
         android:id="@+id/ett_account"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="290dp"
+        android:layout_marginTop="320dp"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         android:hint="请输入账号"
@@ -23,11 +23,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/ett_account"
-        android:layout_marginTop="25dp"
         android:layout_marginStart="50dp"
+        android:layout_marginTop="25dp"
         android:layout_marginEnd="50dp"
-        android:hint="请输入密码"
-        />
+        android:hint="请输入密码" />
 
     <CheckBox
         android:id="@+id/cb_remeberpwd"
@@ -54,11 +53,10 @@
         android:layout_below="@id/ett_password"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
+        android:background="@drawable/button_circle_shape"
         android:text="登  录"
         android:textSize="18dp"
-        android:typeface="monospace"
-        android:background="@drawable/button_circle_shape"
-        />
+        android:typeface="monospace" />
 
     <Button
         android:id="@+id/btn_register"

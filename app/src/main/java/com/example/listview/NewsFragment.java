@@ -1,9 +1,9 @@
 package com.example.listview;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,11 +29,10 @@ public class NewsFragment extends Fragment {
     public int []icons={R.drawable.a1,R.drawable.a2,R.drawable.a3,R.drawable.a4,R.drawable.a5,R.drawable.a6};
     Bundle bundle;
     Bitmap bitmap;
-    byte[] res;  //接收传递过来的byte数组
 
 
     @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+    public View onCreateView (@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = View.inflate(getActivity(),R.layout.news,null);
         ListView listview=view.findViewById(R.id.lv);
         bundle=this.getArguments();
@@ -44,9 +43,6 @@ public class NewsFragment extends Fragment {
             bitmap=bundle.getParcelable("图片");
             //bitmap=getPicFromBytes(res,null);
             dates=insert(dates,bundle.getString("时间"));
-
-            //Data data1= (Data) bundle.getSerializable("图片");
-            //bitmap=data1.bitmap1;
         }
         MyBaseAdapter adapter=new MyBaseAdapter();
         listview.setAdapter(adapter);
@@ -97,16 +93,5 @@ public class NewsFragment extends Fragment {
         tmp[size] = str;  //在最后添加上需要追加的数据
         return tmp;  //返回拼接完成的字符串数组
     }
-    public static Bitmap getPicFromBytes(byte[] bytes, BitmapFactory.Options opts) {
-
-        if (bytes != null)
-            if (opts != null)
-                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length,  opts);
-            else
-                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        return null;
-
-    }
-
 
 }

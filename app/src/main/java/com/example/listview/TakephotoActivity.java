@@ -24,6 +24,7 @@ import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,15 +42,14 @@ import java.util.Date;
 
 public class TakephotoActivity extends AppCompatActivity implements View.OnClickListener {
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageButton ima1;
     Button btnuplod;
     public static final File SDPATH = Environment.getExternalStorageDirectory() ;
     EditText item;
     EditText sub;
-    String itemstr;
-    String substr;
     Bitmap bitmap;
+    TextView messagelocation;
+    ImageButton btn_getlocation;
 
 
 
@@ -58,19 +58,18 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.take_photos);
         ima1=findViewById(R.id.img_photo);
         ima1.setOnClickListener(this);
-
-
+        messagelocation=findViewById(R.id.message_location);
         btnuplod=findViewById(R.id.btn_upload);
         btnuplod.setOnClickListener(this);
         item=findViewById(R.id.ett_item);
         sub=findViewById(R.id.ett_sub);
-
+        btn_getlocation=findViewById(R.id.get_location);
+        btn_getlocation.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-
             case R.id.img_photo:
                 Intent intent;
                 if (Build.VERSION.SDK_INT >= 23) {
@@ -90,32 +89,23 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
                 startActivityForResult(intent, 0x3);
                 break;
             case R.id.btn_upload:
-                Intent intent1=new Intent(TakephotoActivity.this,Mainfaceactivity.class);
-                Mainfaceactivity.bitmap=bitmap;
-                Mainfaceactivity.ite=item.getText().toString().trim();
-                Mainfaceactivity.sub=item.getText().toString().trim();
+                Intent intent1 = new Intent(TakephotoActivity.this, Mainfaceactivity.class);
+                Mainfaceactivity.bitmap = bitmap;
+                Mainfaceactivity.ite = item.getText().toString().trim();
+                Mainfaceactivity.sub = item.getText().toString().trim();
                 startActivity(intent1);
-                /*intent1.putExtra("图片",bitmap);
-                intent1.putExtra("title",item.getText());
-                intent1.putExtra("内容",sub.getText());
-                Bundle bundle=intent1.getExtras();
-                intent1.putExtras(bundle);
-                this.setResult(Activity.RESULT_OK,intent1);
-                this.finish();*/
-                /*Intent intent1=new Intent(this,Mainfaceactivity.class);
-
-                intent1.putExtra("图片",bitmap);
-                intent1.putExtra("title",item.getText());
-                intent1.putExtra("内容",sub.getText());
-                Toast.makeText(TakephotoActivity.this,"上传成功"+item.getText(),Toast.LENGTH_SHORT).show();
-                startActivity(intent1);*/
+                break;
+            case R.id.get_location:
+                Intent intent2 = new Intent();
+                intent2.setClass(TakephotoActivity.this,Location.class);
+                Bundle bundle = new Bundle();
+                intent2.putExtras(bundle);
+                startActivityForResult(intent2, 0x4);
                 break;
 
-        /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);*/
-        }
-    }
+        };
 
+    }
 
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -153,6 +143,16 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
                 ima1.setImageBitmap(bitmap);
             } else {
                 return;
+            }
+        }
+        if (requestCode == 0x4) {
+            if (data != null) {
+                Bundle bundle = data.getExtras();
+                if (bundle != null) {
+                    //处理代码在此地
+                    String str= bundle.getString("aaa");
+                    messagelocation.setText(str);
+                }
             }
         }
     }
@@ -219,7 +219,7 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
 
 
 
-    
+
     /**
      * 通过URI获取文件的路径
      * @param uri
@@ -244,17 +244,4 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
         }
         return picturePath;
     }
-
-    /**
-     * 显示图片（相册方式）
-     * @param imagePath
-     *//*
-    private void showImg(String imagePath) {
-        BitmapFactory.Options option = new BitmapFactory.Options();
-        option.inSampleSize = 2;
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath, option);
-        img.setImageBitmap(bitmap);
-    }
-
-*/
 }

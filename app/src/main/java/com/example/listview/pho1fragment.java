@@ -3,12 +3,15 @@ package com.example.listview;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,16 +60,13 @@ public class pho1fragment extends Fragment implements View.OnClickListener {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        //findViewById(R.id.btn_takephotos).setOnClickListener(this);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = View.inflate(getActivity(),R.layout.fragment_pho1fragment,null);
         view.findViewById(R.id.btn_takephotos).setOnClickListener(this);
-
-        // Inflate the layout for this fragment
         return view;
     }
 
@@ -74,7 +74,7 @@ public class pho1fragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         Intent intent=new Intent();
 
-        intent.setClass(getActivity().getApplicationContext(),TakephotoActivity.class);
+        intent.setClass(Objects.requireNonNull(getActivity()).getApplicationContext(),TakephotoActivity.class);
         startActivity(intent);
     }
 }

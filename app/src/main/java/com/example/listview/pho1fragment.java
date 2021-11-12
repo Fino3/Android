@@ -73,6 +73,7 @@ public class pho1fragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         Intent intent=new Intent();
+
         intent.setClass(getActivity().getApplicationContext(),TakephotoActivity.class);
         startActivity(intent);
     }

@@ -3,10 +3,12 @@ package com.example.listview;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -19,6 +21,8 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.webkit.URLUtil;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -31,13 +35,22 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class TakephotoActivity extends AppCompatActivity implements View.OnClickListener {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageButton ima1;
+    Button btnuplod;
     public static final File SDPATH = Environment.getExternalStorageDirectory() ;
+    EditText item;
+    EditText sub;
+    String itemstr;
+    String substr;
+    Bitmap bitmap;
+
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,29 +59,61 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
         ima1=findViewById(R.id.img_photo);
         ima1.setOnClickListener(this);
 
+
+        btnuplod=findViewById(R.id.btn_upload);
+        btnuplod.setOnClickListener(this);
+        item=findViewById(R.id.ett_item);
+        sub=findViewById(R.id.ett_sub);
+
     }
 
     @Override
     public void onClick(View view) {
-        Intent intent;
-        if (Build.VERSION.SDK_INT >= 23) {
-            int checkPermission = ContextCompat.checkSelfPermission(TakephotoActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
-            if (checkPermission != PackageManager.PERMISSION_GRANTED) {
-                (new AlertDialog.Builder(TakephotoActivity.this)).setMessage("您需要在设置里打开存储空间权限。").setPositiveButton("确认", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions(TakephotoActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+        switch (view.getId()) {
+
+            case R.id.img_photo:
+                Intent intent;
+                if (Build.VERSION.SDK_INT >= 23) {
+                    int checkPermission = ContextCompat.checkSelfPermission(TakephotoActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    if (checkPermission != PackageManager.PERMISSION_GRANTED) {
+                        (new AlertDialog.Builder(TakephotoActivity.this)).setMessage("您需要在设置里打开存储空间权限。").setPositiveButton("确认", new android.content.DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(TakephotoActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                            }
+                        }).setNegativeButton("取消", (android.content.DialogInterface.OnClickListener) null).create().show();
+                        return;
                     }
-                }).setNegativeButton("取消", (android.content.DialogInterface.OnClickListener) null).create().show();
-                return;
-            }
-        }
-        intent = new Intent();
-        //MediaStore.ACTION_IMAGE_CAPTURE  调用系统的照相机
-        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, 0x3);
+                }
+                intent = new Intent();
+                //MediaStore.ACTION_IMAGE_CAPTURE  调用系统的照相机
+                intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, 0x3);
+                break;
+            case R.id.btn_upload:
+                Intent intent1=new Intent(TakephotoActivity.this,Mainfaceactivity.class);
+                Mainfaceactivity.bitmap=bitmap;
+                Mainfaceactivity.ite=item.getText().toString().trim();
+                Mainfaceactivity.sub=item.getText().toString().trim();
+                startActivity(intent1);
+                /*intent1.putExtra("图片",bitmap);
+                intent1.putExtra("title",item.getText());
+                intent1.putExtra("内容",sub.getText());
+                Bundle bundle=intent1.getExtras();
+                intent1.putExtras(bundle);
+                this.setResult(Activity.RESULT_OK,intent1);
+                this.finish();*/
+                /*Intent intent1=new Intent(this,Mainfaceactivity.class);
+
+                intent1.putExtra("图片",bitmap);
+                intent1.putExtra("title",item.getText());
+                intent1.putExtra("内容",sub.getText());
+                Toast.makeText(TakephotoActivity.this,"上传成功"+item.getText(),Toast.LENGTH_SHORT).show();
+                startActivity(intent1);*/
+                break;
 
         /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);*/
+        }
     }
 
 
@@ -100,8 +145,11 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
         if (requestCode == 0x3) {
             if (data != null) {
                 Bundle bundle = data.getExtras();
-                Bitmap bitmap = bundle.getParcelable("data");
-                saveBitmap(bitmap, "abc");
+                bitmap = bundle.getParcelable("data");
+                Date date = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String str = format.format(date);
+                saveBitmap(bitmap,str);
                 ima1.setImageBitmap(bitmap);
             } else {
                 return;
@@ -170,49 +218,43 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
     }
 
 
-    /*protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
 
-            new DateFormat();
-            String name = DateFormat.format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".jpg";
-            Toast.makeText(this, name, Toast.LENGTH_LONG).show();
-            Bundle bundle = data.getExtras();
-            Bitmap bitmap = (Bitmap) bundle.get("data");// 获取相机返回的数据，并转换为Bitmap图片格式
-
-            FileOutputStream b = null;
-            File file = new File("/Image");
-            file.mkdirs();// 创建文件夹
-            String fileName = "/Image/"+name;
-
-            try {
-                try {
-                    b = new FileOutputStream(fileName);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, b);// 把数据写入文件
-            } finally {
-                try {
-                    try {
-                        b.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    b.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try
-            {
-                ima1.setImageBitmap(bitmap);// 将图片显示在ImageView里
-            }catch(Exception e)
-            {
-                Log.e("error", e.getMessage());
-            }
-
+    
+    /**
+     * 通过URI获取文件的路径
+     * @param uri
+     * @param activity
+     */
+    public static String getFilePathWithUri(Uri uri, Activity activity) throws Exception {
+        if (uri == null) {
+            return "";
         }
-    }*/
+        String picturePath = null;
+        String scheme = uri.getScheme();
+        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = activity.getContentResolver().query(uri,
+                    filePathColumn, null, null, null);//从系统表中查询指定Uri对应的照片
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            picturePath = cursor.getString(columnIndex);  //获取照片路径
+            cursor.close();
+        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            picturePath = uri.getPath();
+        }
+        return picturePath;
+    }
 
+    /**
+     * 显示图片（相册方式）
+     * @param imagePath
+     *//*
+    private void showImg(String imagePath) {
+        BitmapFactory.Options option = new BitmapFactory.Options();
+        option.inSampleSize = 2;
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath, option);
+        img.setImageBitmap(bitmap);
+    }
+
+*/
 }

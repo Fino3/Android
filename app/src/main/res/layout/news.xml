@@ -19,6 +19,7 @@
     <ListView
         android:id="@+id/lv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="620dp"
+        android:layout_marginTop="45dp"/>
 
 </RelativeLayout>

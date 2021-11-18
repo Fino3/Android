@@ -70,9 +70,6 @@ public class registeractivity extends AppCompatActivity implements View.OnClickL
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            /*Intent intent=new Intent();
-            intent.setClass(getApplicationContext(),MainActivity.class);
-            startActivity(intent);*/
         }
         else {
             Toast.makeText(registeractivity.this,"两次密码输入不一致",Toast.LENGTH_SHORT).show();

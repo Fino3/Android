@@ -143,23 +143,6 @@ public class MainActivity extends AppCompatActivity  {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        /*if(cb_remeberpwd.isChecked()){
-                            SharedPreferences.Editor editor =sp.edit();
-                            editor.putString("name",name);
-                            editor.putString("pwd",pwd);
-                            editor.putBoolean(rpd,true);
-                            editor.apply();
-                        }
-                        if(cb_autologin.isChecked()){
-                            SharedPreferences.Editor editor=sp.edit();
-                            editor.putBoolean(alg,true);
-                            editor.apply();
-
-                        }
-                        Intent intent1=new Intent();
-                        intent1.setClass(getApplicationContext(), Mainfaceactivity.class);
-                        startActivity(intent1);*/
-
                     }
                     break;
                 case R.id.btn_register:

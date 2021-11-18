@@ -32,7 +32,6 @@ public class Mainfaceactivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_face);
-        Toast.makeText(Mainfaceactivity.this,ite+"++++",Toast.LENGTH_SHORT).show();
         bottomNavigationView =findViewById(R.id.bottomNav);
         if(savedInstanceState==null){
             getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,new pho2fragment()).commit();

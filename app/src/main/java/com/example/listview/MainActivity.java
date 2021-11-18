@@ -8,14 +8,28 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gyf.immersionbar.ImmersionBar;
+
+import org.json.JSONException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
 
 
 public class MainActivity extends AppCompatActivity  {
@@ -51,6 +65,8 @@ public class MainActivity extends AppCompatActivity  {
             intent1.setClass(getApplicationContext(), Mainfaceactivity.class);
             startActivity(intent1);
         }
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
     }
 
     private void initUI() {
@@ -62,7 +78,6 @@ public class MainActivity extends AppCompatActivity  {
         cb_autologin=findViewById(R.id.cb_autologin);
         bt_register=findViewById(R.id.btn_register);
         bt_login=findViewById(R.id.btn_login);
-
 
         MyOnClickListener l=new MyOnClickListener();
         bt_login.setOnClickListener(l);
@@ -82,7 +97,57 @@ public class MainActivity extends AppCompatActivity  {
                         Toast.makeText(MainActivity.this,"用户名或密码为空",Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        if(cb_remeberpwd.isChecked()){
+                        try {
+                            String path = "http://49.235.134.191:8080/user/login?account="+name+"&password="+pwd;
+                            Log.v("mybug",path);
+                            URL url = new URL(path);
+                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                            conn.setRequestMethod("GET");
+                            conn.setConnectTimeout(5000);
+                            int responseCode = conn.getResponseCode();
+                            if (responseCode == 200) {
+                                InputStream in = conn.getInputStream();
+                                String jsonStr = "";
+                                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                                byte[] buffer = new byte[1024];
+                                int len = 0;
+                                while ((len = in.read(buffer, 0, buffer.length)) != -1) {
+                                    out.write(buffer, 0, len);
+                                }
+                                jsonStr = new String(out.toByteArray());
+                                Result result = JSONObject.parseObject(jsonStr, Result.class);
+                                if (result.getCode()==200) {
+                                    if (cb_remeberpwd.isChecked()) {
+                                        SharedPreferences.Editor editor = sp.edit();
+                                        editor.putString("name", name);
+                                        editor.putString("pwd", pwd);
+                                        editor.putBoolean(rpd, true);
+                                        editor.apply();
+                                    }
+                                    if (cb_autologin.isChecked()) {
+                                        SharedPreferences.Editor editor = sp.edit();
+                                        editor.putBoolean(alg, true);
+                                        editor.apply();
+                                    }
+                                    Toast.makeText(MainActivity.this,"登录成功",Toast.LENGTH_SHORT).show();
+                                    Intent intent1 = new Intent();
+                                    intent1.setClass(getApplicationContext(), Mainfaceactivity.class);
+                                    startActivity(intent1);
+                                    conn.disconnect();
+                                }
+                                else if (result.getCode()==400) {
+                                    Toast.makeText(MainActivity.this,result.getMessage(),Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (ProtocolException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        /*if(cb_remeberpwd.isChecked()){
                             SharedPreferences.Editor editor =sp.edit();
                             editor.putString("name",name);
                             editor.putString("pwd",pwd);
@@ -97,11 +162,10 @@ public class MainActivity extends AppCompatActivity  {
                         }
                         Intent intent1=new Intent();
                         intent1.setClass(getApplicationContext(), Mainfaceactivity.class);
-                        startActivity(intent1);
+                        startActivity(intent1);*/
 
                     }
                     break;
-
                 case R.id.btn_register:
                     Intent intent2=new Intent();
                     intent2.setClass(getApplicationContext(),registeractivity.class);

@@ -45,7 +45,7 @@ public class registeractivity extends AppCompatActivity implements View.OnClickL
                 HttpURLConnection conn=(HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(5000);
-                if (conn.getResponseCode()==200 ){
+                if (conn.getResponseCode()==200) {
                     InputStream in = conn.getInputStream();
                     String jsonStr = "";
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -67,8 +67,6 @@ public class registeractivity extends AppCompatActivity implements View.OnClickL
                         Toast.makeText(registeractivity.this,result.getMessage(),Toast.LENGTH_SHORT).show();
                     }
                 }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }

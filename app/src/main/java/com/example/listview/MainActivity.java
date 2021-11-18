@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity  {
                     else {
                         try {
                             String path = "http://49.235.134.191:8080/user/login?account="+name+"&password="+pwd;
-                            Log.v("mybug",path);
                             URL url = new URL(path);
                             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                             conn.setRequestMethod("GET");
@@ -116,6 +115,7 @@ public class MainActivity extends AppCompatActivity  {
                                 }
                                 jsonStr = new String(out.toByteArray());
                                 Result result = JSONObject.parseObject(jsonStr, Result.class);
+                                Log.v("debug",result.toString());
                                 if (result.getCode()==200) {
                                     if (cb_remeberpwd.isChecked()) {
                                         SharedPreferences.Editor editor = sp.edit();
@@ -140,10 +140,6 @@ public class MainActivity extends AppCompatActivity  {
                                 }
                             }
 
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (ProtocolException e) {
-                            e.printStackTrace();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

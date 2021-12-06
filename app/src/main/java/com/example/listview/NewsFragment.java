@@ -136,10 +136,7 @@ public class NewsFragment extends Fragment {
             else {
                 //iv.setImageBitmap(bitmap);
                 Log.v("aaabbb", String.valueOf(bitmaps[i- icons.length].getHeight()));
-                Matrix matrix = new Matrix();
-                matrix.setScale(0.2f, 0.2f);
-                bitmaps[i-icons.length] = Bitmap.createBitmap(bitmaps[i-icons.length], 0, 0, bitmaps[i-icons.length].getWidth(),
-                        bitmaps[i-icons.length].getHeight(), matrix, true);
+
                 iv.setImageBitmap(bitmaps[i- icons.length]);
                 Log.v("aaabbb", String.valueOf(bitmaps[i- icons.length].getHeight()));
             }
@@ -183,6 +180,10 @@ public class NewsFragment extends Fragment {
             InputStream is = conn.getInputStream();
             //解析得到图片
             bitmap = BitmapFactory.decodeStream(is);
+            Matrix matrix = new Matrix();
+            matrix.setScale(0.2f, 0.2f);
+            bitmap= Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                    bitmap.getHeight(), matrix, true);
             //关闭数据流
             is.close();
         }catch(Exception e){

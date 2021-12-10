@@ -89,11 +89,12 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
                 startActivityForResult(intent, 0x3);
                 break;
             case R.id.btn_upload:
-                Intent intent1 = new Intent(TakephotoActivity.this, Mainfaceactivity.class);
+                /*Intent intent1 = new Intent(TakephotoActivity.this, Mainfaceactivity.class);
                 Mainfaceactivity.bitmap = bitmap;
                 Mainfaceactivity.ite = item.getText().toString().trim();
                 Mainfaceactivity.sub = item.getText().toString().trim();
-                startActivity(intent1);
+                startActivity(intent1);*/
+
                 break;
             case R.id.get_location:
                 Intent intent2 = new Intent();

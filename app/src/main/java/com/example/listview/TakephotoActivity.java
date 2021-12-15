@@ -153,31 +153,7 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 0x1) {
-            if (data != null) {
-                Uri uri = data.getData();
-                //裁剪图片
-                getImg(uri);
-            } else {
-                return;
-            }
-        }
-        if (requestCode == 0x2) {
-            if (data != null) {
-                Bundle bundle = data.getExtras();
-                //得到图片
-                Bitmap bitmap = bundle.getParcelable("data");
-                //上传图片获得Url
 
-
-//              //保存到图片到本地
-                saveBitmap(bitmap, "abc");
-                //设置图片
-                ima1.setImageBitmap(bitmap);
-            } else {
-                return;
-            }
-        }
         if (requestCode == 0x3) {
             if (data != null) {
                 Bundle bundle = data.getExtras();
@@ -205,45 +181,6 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void getImg(Uri uri) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            //从输入流中解码位图
-            // Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-            //保存位图
-            // img.setImageBitmap(bitmap);
-            cutImg(uri);
-            //关闭流
-            inputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    //裁剪图片
-    private void cutImg(Uri uri) {
-        if (uri != null) {
-            Intent intent = new Intent("com.android.camera.action.CROP");
-            intent.setDataAndType(uri, "image/*");
-            //true:出现裁剪的框
-            intent.putExtra("crop", "true");
-            //裁剪宽高时的比例
-            intent.putExtra("aspectX", 1);
-            intent.putExtra("aspectY", 1);
-            //裁剪后的图片的大小
-            intent.putExtra("outputX", 300);
-            intent.putExtra("outputY", 300);
-            intent.putExtra("return-data", true);  // 返回数据
-            intent.putExtra("output", uri);
-            intent.putExtra("scale", true);
-            startActivityForResult(intent, 0x2);
-        } else {
-            return;
-        }
-    }
 
     public void saveBitmap(Bitmap bm, String picName) {
         Log.e("", "保存图片");

@@ -1,9 +1,12 @@
 package com.example.listview;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,9 +34,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.alibaba.fastjson.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -42,24 +47,35 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 
 public class TakephotoActivity extends AppCompatActivity implements View.OnClickListener {
 
     ImageButton ima1;
     Button btnuplod;
-    public final File SDPATH = Environment.getExternalStorageDirectory() ;
     EditText item;
     EditText sub;
-    Bitmap bitmap;
     TextView messagelocation;
     ImageButton btn_getlocation;
+    String mFilePath;
+    private FileInputStream is = null;
+
+    private static final int TIMEOUT_IN_MILLIONS = 5000;
+    private static final String CHARSET = "utf-8";
+    private static final String BOUNDARY = UUID.randomUUID().toString();
+    private static final String PREFIX = "--";
+    private static final String LINE_END = "\r\n";
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    @SuppressLint("NewApi")
+
     FeedBack feedBack;
 
 
@@ -75,6 +91,7 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
         sub=findViewById(R.id.ett_sub);
         btn_getlocation=findViewById(R.id.get_location);
         btn_getlocation.setOnClickListener(this);
+        Log.v("aaaaa", getExternalFilesDir(null) + "/" + "mytest.png");
     }
 
     @Override
@@ -93,17 +110,28 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
                         return;
                     }
                 }
-                intent = new Intent();
+                mFilePath=getExternalFilesDir(null) + "/" + "mytest.png";
+                File cameraPhoto = new File(mFilePath);
+                /*takePhotoBiggerThan7((new File(mFilePath)).getAbsolutePath());*/
+                intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);;
                 //MediaStore.ACTION_IMAGE_CAPTURE  调用系统的照相机
-                intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                Uri photoUri = FileProvider.getUriForFile(
+                        this,
+                        getPackageName() + ".fileprovider",
+                        cameraPhoto);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT,photoUri);
                 startActivityForResult(intent, 0x3);
                 break;
             case R.id.btn_upload:
-                /*Intent intent1 = new Intent(TakephotoActivity.this, Mainfaceactivity.class);
-                Mainfaceactivity.bitmap = bitmap;
-                Mainfaceactivity.ite = item.getText().toString().trim();
-                Mainfaceactivity.sub = item.getText().toString().trim();
-                startActivity(intent1);*/
+                Log.v("aaaaa","upload");
+                mFilePath=getExternalFilesDir(null) + "/" + "mytest.png";
+                File file=new File(mFilePath);
+                try {
+                    Result result = uploadFile(file,"http://49.235.134.191:8080/file/image/upload");
+                    Log.v("aaaaa", result.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 /*try {
                     String path="http://49.235.134.191:8080/feedback/save";
                     URL url=new URL(path);
@@ -150,22 +178,31 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
 
     }
 
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 0x3) {
-            if (data != null) {
-                Bundle bundle = data.getExtras();
-                bitmap = bundle.getParcelable("data");
-                Date date = new Date();
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String str = format.format(date);
-                saveBitmap(bitmap,str);
+            try {
+                mFilePath=getExternalFilesDir(null) + "/" + "mytest.png";
+                // 获取输入流
+                is = new FileInputStream(mFilePath);
+                // 把流解析成bitmap
+                Bitmap bitmap = BitmapFactory.decodeStream(is);
+                // 设置图片
                 ima1.setImageBitmap(bitmap);
-            } else {
-                return;
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                // 关闭流
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
+
         }
         if (requestCode == 0x4) {
             Log.v("aaaaa", String.valueOf(data.getExtras()));
@@ -180,53 +217,66 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
             }
         }
     }
-
-
-    public void saveBitmap(Bitmap bm, String picName) {
-        Log.e("", "保存图片");
-        Log.v("aaaaa", String.valueOf(bm.getHeight()));
-        try {
-            File file = new File(getExternalFilesDir(null), picName + ".JPEG");
-            Log.v("aaaaa", String.valueOf(getExternalFilesDir(null)));
-            if (file.exists()) {
-                file.delete();
+    public static Result uploadFile(File file, String RequestURL) throws Exception{
+        String CONTENT_TYPE = "multipart/form-data";
+        URL url = new URL(RequestURL);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setReadTimeout(TIMEOUT_IN_MILLIONS);
+        conn.setConnectTimeout(TIMEOUT_IN_MILLIONS);
+        conn.setDoInput(true); //允许输入流
+        conn.setDoOutput(true); //允许输出流
+        conn.setUseCaches(false); //不允许使用缓存
+        conn.setRequestMethod("POST"); //请求方式
+        conn.setRequestProperty("Charset", "utf-8");
+        //设置编码
+        conn.setRequestProperty("connection", "keep-alive");
+        conn.setRequestProperty("Content-Type", CONTENT_TYPE + ";boundary=" + BOUNDARY);
+        if (file != null) {
+            Log.v("aaaaa","file != null");
+            /** * 当文件不为空，把文件包装并且上传 */
+            OutputStream outputSteam = conn.getOutputStream();
+            DataOutputStream dos = new DataOutputStream(outputSteam);
+            StringBuffer sb = new StringBuffer();
+            sb.append(PREFIX);
+            sb.append(BOUNDARY);
+            sb.append(LINE_END);
+            sb.append("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"" + LINE_END);
+            Log.v("aaaaa",file.getName());
+            sb.append("Content-Type: application/octet-stream; charset=" + CHARSET + LINE_END);
+            sb.append(LINE_END);
+            dos.write(sb.toString().getBytes());
+            InputStream is = new FileInputStream(file);
+            byte[] bytes = new byte[1024];
+            int len = 0;
+            while ((len = is.read(bytes)) != -1) {
+                dos.write(bytes, 0, len);
             }
-            FileOutputStream out = new FileOutputStream(file);
-            bm.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            is.close();
+            dos.write(LINE_END.getBytes());
+            byte[] end_data = (PREFIX + BOUNDARY + PREFIX + LINE_END).getBytes();
+            dos.write(end_data);
+            dos.flush();
+            /**
+             * 获取响应码 200=成功
+             * 当响应成功，获取响应的流
+             */
+            int res = conn.getResponseCode();
+            if (res == 200) {
+                Log.v("aaaaa","success");
+                InputStream inputStream = conn.getInputStream();
+
+                String input;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuffer stringBuffer = new StringBuffer();
+                while ((input = reader.readLine()) != null) {
+                    stringBuffer.append(input);
+                }
+                return JSONObject.parseObject(stringBuffer.toString(), Result.class);
+            } else {
+                Log.v("aaaaa", conn.getResponseMessage());
+            }
         }
+        throw new RuntimeException("文件不存在");
     }
 
-
-
-
-    /**
-     * 通过URI获取文件的路径
-     * @param uri
-     * @param activity
-     */
-    public static String getFilePathWithUri(Uri uri, Activity activity) throws Exception {
-        if (uri == null) {
-            return "";
-        }
-        String picturePath = null;
-        String scheme = uri.getScheme();
-        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-            Cursor cursor = activity.getContentResolver().query(uri,
-                    filePathColumn, null, null, null);//从系统表中查询指定Uri对应的照片
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            picturePath = cursor.getString(columnIndex);  //获取照片路径
-            cursor.close();
-        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
-            picturePath = uri.getPath();
-        }
-        return picturePath;
-    }
 }

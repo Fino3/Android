@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,11 +32,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.alibaba.fastjson.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -44,13 +54,13 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
 
     ImageButton ima1;
     Button btnuplod;
-    public static final File SDPATH = Environment.getExternalStorageDirectory() ;
+    public final File SDPATH = Environment.getExternalStorageDirectory() ;
     EditText item;
     EditText sub;
     Bitmap bitmap;
     TextView messagelocation;
     ImageButton btn_getlocation;
-
+    FeedBack feedBack;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +104,39 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
                 Mainfaceactivity.ite = item.getText().toString().trim();
                 Mainfaceactivity.sub = item.getText().toString().trim();
                 startActivity(intent1);*/
+                /*try {
+                    String path="http://49.235.134.191:8080/feedback/save";
+                    URL url=new URL(path);
+                    HttpURLConnection conn=(HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10 * 1000);
+                    conn.setRequestMethod("POST");
+                    conn.setDoOutput(true);
+                    conn.setUseCaches(false);
+                    conn.setInstanceFollowRedirects(true);
 
+
+                    if (conn.getResponseCode()==200) {
+                        InputStream in = conn.getInputStream();
+                        String jsonStr = "";
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[1024];
+                        int len = 0;
+                        while ((len = in.read(buffer, 0, buffer.length)) != -1) {
+                            out.write(buffer, 0, len);
+                        }
+                        jsonStr = new String(out.toByteArray());
+                        Result result = JSONObject.parseObject(jsonStr, Result.class);
+                        if (result.getCode()==200) {
+                            Toast.makeText(TakephotoActivity.this,"上传成功",Toast.LENGTH_SHORT).show();
+                            conn.disconnect();
+                        }
+                        else if (result.getCode()==400) {
+                            Toast.makeText(TakephotoActivity.this,result.getMessage(),Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }*/
                 break;
             case R.id.get_location:
                 Intent intent2 = new Intent();
@@ -125,7 +167,10 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
                 Bundle bundle = data.getExtras();
                 //得到图片
                 Bitmap bitmap = bundle.getParcelable("data");
-//                //保存到图片到本地
+                //上传图片获得Url
+
+
+//              //保存到图片到本地
                 saveBitmap(bitmap, "abc");
                 //设置图片
                 ima1.setImageBitmap(bitmap);
@@ -147,12 +192,14 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
             }
         }
         if (requestCode == 0x4) {
+            Log.v("aaaaa", String.valueOf(data.getExtras()));
             if (data != null) {
                 Bundle bundle = data.getExtras();
                 if (bundle != null) {
                     //处理代码在此地
                     String str= bundle.getString("aaa");
                     messagelocation.setText(str);
+                    //feedBack.setAddress(str);
                 }
             }
         }
@@ -198,19 +245,19 @@ public class TakephotoActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    public static void saveBitmap(Bitmap bm, String picName) {
+    public void saveBitmap(Bitmap bm, String picName) {
         Log.e("", "保存图片");
+        Log.v("aaaaa", String.valueOf(bm.getHeight()));
         try {
-
-            File f = new File(SDPATH, picName + ".JPEG");
-            if (f.exists()) {
-                f.delete();
+            File file = new File(getExternalFilesDir(null), picName + ".JPEG");
+            Log.v("aaaaa", String.valueOf(getExternalFilesDir(null)));
+            if (file.exists()) {
+                file.delete();
             }
-            FileOutputStream out = new FileOutputStream(f);
-            bm.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            FileOutputStream out = new FileOutputStream(file);
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
-            Log.e("", "已经保存");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
